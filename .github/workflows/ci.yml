@@ -31,33 +31,32 @@ jobs:
           fetch-depth: 1
 
 
-      - name: Install LLVM via Homebrew
+      - name: Install Dependencies
         run: |
+          cargo install cbindgen --force
+          # brew install llvm@20
           brew install lld@20
-          brew install wasi-libc
-          brew install wasi-runtimes
+          # brew install wasi-libc
+          # brew install wasi-runtimes
 
           WASI_SDK_VER=26
           curl -LO https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${WASI_SDK_VER}/wasi-sdk-${WASI_SDK_VER}.0-arm64-macos.tar.gz
           tar xvf wasi-sdk-${WASI_SDK_VER}.0-arm64-macos.tar.gz
           
-          WASI_PREFIX="$PWD/wasi-sdk-${WASI_SDK_VER}.0-arm64-macos"
-          echo "WASI_PREFIX=$WASI_PREFIX" >> "$GITHUB_ENV"
-          echo "WASI_SDK_PATH=$WASI_PREFIX" >> "$GITHUB_ENV"
-          echo "WASI_SYSROOT=$WASI_PREFIX/share/wasi-sysroot" >> "$GITHUB_ENV"
-          echo "CC_wasm32_wasi=$WASI_PREFIX/bin/clang --sysroot=$WASI_PREFIX/share/wasi-sysroot" >> "$GITHUB_ENV"
-          echo "CARGO_TARGET_WASM32_WASI_LINKER=$WASI_PREFIX/bin/wasm-ld" >> "$GITHUB_ENV"
-          echo "WASM_CC=$WASI_PREFIX/bin/clang" >> "$GITHUB_ENV"
-          echo "WASM_CXX=$WASI_PREFIX/bin/clang++" >> "$GITHUB_ENV"
-          # echo "WASM_CFLAGS=-I$WASI_PREFIX/share/wasi-sysroot/include" >> "$GITHUB_ENV"
-          # echo "WASM_CXXFLAGS=-I$WASI_PREFIX/share/wasi-sysroot/include" >> "$GITHUB_ENV"
-          echo "CFLAGS=${CFLAGS:-} -I$WASI_PREFIX/share/wasi-sysroot/include" >> "$GITHUB_ENV"
-          echo "CXXFLAGS=${CXXFLAGS:-} -I$WASI_PREFIX/share/wasi-sysroot/include" >> "$GITHUB_ENV"
-          echo "LDFLAGS=${LDFLAGS:-} -L$WASI_PREFIX/lib -L$WASI_PREFIX/share/wasi-sysroot/lib" >> "$GITHUB_ENV"
-          ls "$WASI_PREFIX/"
-          ls "$WASI_PREFIX/share/wasi-sysroot"
+          WASI_SDK_PATH="$PWD/wasi-sdk-${WASI_SDK_VER}.0-arm64-macos"
+          echo "WASI_SDK_PATH=$WASI_SDK_PATH" >> "$GITHUB_ENV"
+          echo "WASI_SYSROOT=$WASI_SDK_PATH/share/wasi-sysroot" >> "$GITHUB_ENV"
+          # echo "CC_wasm32_wasi=$WASI_SDK_PATH/bin/clang --sysroot=$WASI_SDK_PATH/share/wasi-sysroot" >> "$GITHUB_ENV"
+          # echo "CARGO_TARGET_WASM32_WASI_LINKER=$WASI_SDK_PATH/bin/wasm-ld" >> "$GITHUB_ENV"
+          echo "WASM_CC=$WASI_SDK_PATH/bin/clang" >> "$GITHUB_ENV"
+          echo "WASM_CXX=$WASI_SDK_PATH/bin/clang++" >> "$GITHUB_ENV"
+          # # echo "WASM_CFLAGS=-I$WASI_SDK_PATH/share/wasi-sysroot/include" >> "$GITHUB_ENV"
+          # # echo "WASM_CXXFLAGS=-I$WASI_SDK_PATH/share/wasi-sysroot/include" >> "$GITHUB_ENV"
+          # echo "CFLAGS=${CFLAGS:-} -I$WASI_SDK_PATH/share/wasi-sysroot/include" >> "$GITHUB_ENV"
+          # echo "CXXFLAGS=${CXXFLAGS:-} -I$WASI_SDK_PATH/share/wasi-sysroot/include" >> "$GITHUB_ENV"
+          # echo "LDFLAGS=${LDFLAGS:-} -L$WASI_SDK_PATH/lib -L$WASI_SDK_PATH/share/wasi-sysroot/lib" >> "$GITHUB_ENV"
 
-          # echo "$WASI_PREFIX/bin" >> $GITHUB_PATH
+          # echo "$WASI_SDK_PATH/bin" >> $GITHUB_PATH
 
           LLVM_PATH=$(brew --prefix llvm@20)
           LLD_PATH=$(brew --prefix lld@20)
@@ -65,9 +64,6 @@ jobs:
           # 将 llvm 的 bin 目录添加到系统 PATH 的最前面
           echo "$LLVM_PATH/bin" >> $GITHUB_PATH
           echo "$LLD_PATH/bin" >> $GITHUB_PATH
-
-          ls -al "$LLVM_PATH/bin/"
-          ls -al "$LLD_PATH/bin/"
 
           # 验证 wasm-ld 是否可用
           if [ -f "$LLD_PATH/bin/wasm-ld" ]; then
