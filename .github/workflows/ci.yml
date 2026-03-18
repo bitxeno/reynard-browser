@@ -30,11 +30,92 @@ jobs:
           clean: true
           fetch-depth: 1
 
+
+      - name: Install LLVM via Homebrew
+        run: |
+          brew install lld@20
+          brew install wasi-libc
+          brew install wasi-runtimes
+
+          WASI_SDK_VER=26
+          curl -LO https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${WASI_SDK_VER}/wasi-sdk-${WASI_SDK_VER}.0-arm64-macos.tar.gz
+          tar xvf wasi-sdk-${WASI_SDK_VER}.0-arm64-macos.tar.gz
+          
+          WASI_PREFIX="$PWD/wasi-sdk-${WASI_SDK_VER}.0-arm64-macos"
+          echo "WASI_PREFIX=$WASI_PREFIX" >> "$GITHUB_ENV"
+          echo "WASI_SDK_PATH=$WASI_PREFIX" >> "$GITHUB_ENV"
+          echo "WASI_SYSROOT=$WASI_PREFIX/share/wasi-sysroot" >> "$GITHUB_ENV"
+          echo "CC_wasm32_wasi=$WASI_PREFIX/bin/clang --sysroot=$WASI_PREFIX/share/wasi-sysroot" >> "$GITHUB_ENV"
+          echo "CARGO_TARGET_WASM32_WASI_LINKER=$WASI_PREFIX/bin/wasm-ld" >> "$GITHUB_ENV"
+          echo "WASM_CC=$WASI_PREFIX/bin/clang" >> "$GITHUB_ENV"
+          echo "WASM_CXX=$WASI_PREFIX/bin/clang++" >> "$GITHUB_ENV"
+          # echo "WASM_CFLAGS=-I$WASI_PREFIX/share/wasi-sysroot/include" >> "$GITHUB_ENV"
+          # echo "WASM_CXXFLAGS=-I$WASI_PREFIX/share/wasi-sysroot/include" >> "$GITHUB_ENV"
+          echo "CFLAGS=${CFLAGS:-} -I$WASI_PREFIX/share/wasi-sysroot/include" >> "$GITHUB_ENV"
+          echo "CXXFLAGS=${CXXFLAGS:-} -I$WASI_PREFIX/share/wasi-sysroot/include" >> "$GITHUB_ENV"
+          echo "LDFLAGS=${LDFLAGS:-} -L$WASI_PREFIX/lib -L$WASI_PREFIX/share/wasi-sysroot/lib" >> "$GITHUB_ENV"
+          ls "$WASI_PREFIX/"
+          ls "$WASI_PREFIX/share/wasi-sysroot"
+
+          # echo "$WASI_PREFIX/bin" >> $GITHUB_PATH
+
+          LLVM_PATH=$(brew --prefix llvm@20)
+          LLD_PATH=$(brew --prefix lld@20)
+          
+          # 将 llvm 的 bin 目录添加到系统 PATH 的最前面
+          echo "$LLVM_PATH/bin" >> $GITHUB_PATH
+          echo "$LLD_PATH/bin" >> $GITHUB_PATH
+
+          ls -al "$LLVM_PATH/bin/"
+          ls -al "$LLD_PATH/bin/"
+
+          # 验证 wasm-ld 是否可用
+          if [ -f "$LLD_PATH/bin/wasm-ld" ]; then
+            echo "wasm-ld found at $LLD_PATH"
+          else
+            echo "wasm-ld NOT found in $LLD_PATH"
+            exit 1
+          fi
+          
+
+      - name: Verify Version
+        run: |
+          clang --version
+          which clang
+
+      - name: Compute submodule cache key
+        id: submodule-key
+        shell: bash
+        run: |
+          firefox_rev=$(git ls-tree HEAD engine/firefox | awk '{print $3}')
+          idevice_rev=$(git ls-tree HEAD support/idevice | awk '{print $3}')
+          release_tag=$(tr -d '\000\r' < engine/release.txt | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+          echo "key=submodule-gitdata-${RUNNER_OS}-${firefox_rev}-${idevice_rev}-${release_tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore submodule git data cache
+        id: submodule-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            .git/modules/engine/firefox
+            .git/modules/support/idevice
+          key: ${{ steps.submodule-key.outputs.key }}
+
+
       - name: Checkout Firefox submodule
         run: git submodule update --init --depth 1 --recursive engine/firefox
 
       - name: Checkout idevice submodule
         run: git submodule update --init --depth 1 --recursive support/idevice
+
+      - name: Save submodule git data cache
+        if: steps.submodule-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .git/modules/engine/firefox
+            .git/modules/support/idevice
+          key: ${{ steps.submodule-key.outputs.key }}
 
       - name: Update Gecko
         run: ./tools/development/update-gecko.sh
