@@ -21,4 +21,4 @@ sed -i '' "s/CURRENT_BUILD = .*/CURRENT_BUILD = $TODAY/" "$DIST_DIR/Reynard.xcco
 
 xcodebuild clean -scheme "Reynard" -project "$PROJECT_PATH" -sdk iphoneos -arch arm64 -configuration Release
 
-xcodebuild archive -scheme "Reynard" -archivePath "$DIST_DIR/Reynard.xcarchive" -project "$PROJECT_PATH" -sdk iphoneos -arch arm64 -configuration Release -xcconfig "$DIST_DIR/Reynard.xcconfig"
+xcodebuild archive -scheme "Reynard" -archivePath "$DIST_DIR/Reynard.xcarchive" -project "$PROJECT_PATH" -sdk iphoneos -arch arm64 -configuration Release -xcconfig "$DIST_DIR/Reynard.xcconfig" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_REQUIRED=NO
