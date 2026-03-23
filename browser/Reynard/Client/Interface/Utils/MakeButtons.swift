@@ -9,7 +9,7 @@ import UIKit
 import Darwin
 
 enum MakeButtons {
-    static let hasLiquidGlass = dlsym(UnsafeMutableRawPointer(bitPattern: -2), "_UISolariumEnabled") != nil && _UISolariumEnabled()
+    static let hasLiquidGlass = false
     
     static func makeToolbarButton(target: AnyObject, imageName: String, action: Selector) -> UIButton {
         let button = UIButton(type: .system)

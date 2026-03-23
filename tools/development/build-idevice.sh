@@ -16,13 +16,28 @@ if [ ! -e "$SUBMODULE_PATH/.git" ]; then
   git -C "$REPO_ROOT" submodule update --init --recursive support/idevice
 fi
 
-RUST_TARGET="aarch64-apple-ios"
-DEPLOYMENT_FLAG="-miphoneos-version-min=${DEPLOYMENT_TARGET}"
+# Build mode: pass "device" to build for device, otherwise defaults to simulator
+BUILD_FOR="${1:-simulator}"
 
-if ! rustup target list | grep -q "^$RUST_TARGET (installed)"; then
-	rustup target add "$RUST_TARGET"
+if [ "$BUILD_FOR" = "device" ]; then
+  RUST_TARGET="aarch64-apple-ios"
+  DEPLOYMENT_FLAG="-miphoneos-version-min=${DEPLOYMENT_TARGET}"
+else
+  # Simulator targets: choose based on host arch for Apple Silicon vs Intel
+  HOST_ARCH="$(uname -m)"
+  if [ "$HOST_ARCH" = "arm64" ]; then
+    RUST_TARGET="aarch64-apple-ios-sim"
+  else
+    RUST_TARGET="x86_64-apple-ios"
+  fi
+  DEPLOYMENT_FLAG="-mios-simulator-version-min=${DEPLOYMENT_TARGET}"
 fi
 
+if ! rustup target list | grep -q "^$RUST_TARGET (installed)"; then
+  rustup target add "$RUST_TARGET"
+fi
+
+# Export simulator/device deployment target appropriately
 export IPHONEOS_DEPLOYMENT_TARGET="$DEPLOYMENT_TARGET"
 if [ -n "${RUSTFLAGS:-}" ]; then
   export RUSTFLAGS="${RUSTFLAGS} -C link-arg=${DEPLOYMENT_FLAG}"

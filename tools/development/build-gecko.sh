@@ -6,7 +6,19 @@ SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 ROOT_DIR="$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)"
 FIREFOX_DIR="$ROOT_DIR/engine/firefox"
 
-TARGET="aarch64-apple-ios"
+# Build target: default to simulator, pass "device" as first arg for device build
+BUILD_FOR="${1:-simulator}"
+
+if [ "$BUILD_FOR" = "device" ]; then
+	TARGET="aarch64-apple-ios"
+else
+	HOST_ARCH="$(uname -m)"
+	if [ "$HOST_ARCH" = "arm64" ]; then
+		TARGET="aarch64-apple-ios-sim"
+	else
+		TARGET="x86_64-apple-ios"
+	fi
+fi
 
 cd "$ROOT_DIR"
 
