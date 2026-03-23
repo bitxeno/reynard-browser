@@ -37,7 +37,7 @@ final class PadTabCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemGray3
+        view.backgroundColor = PlatformCompatColor.gray3
         return view
     }()
     
@@ -74,7 +74,7 @@ final class PadTabCell: UICollectionViewCell {
     
     func configure(title: String, selected: Bool) {
         titleLabel.text = title.isEmpty ? "Homepage" : title
-        contentView.backgroundColor = selected ? .systemGray6 : .systemGray4
+        contentView.backgroundColor = selected ? PlatformCompatColor.gray6 : PlatformCompatColor.gray4
         titleLabel.textColor = selected ? .label : .secondaryLabel
         closeButton.isHidden = !selected
     }

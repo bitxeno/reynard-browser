@@ -11,14 +11,14 @@ final class ChromeContainer {
     let containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = PlatformCompatColor.gray6
         return view
     }()
     
     let bottomSafeAreaFillView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = PlatformCompatColor.gray6
         return view
     }()
     

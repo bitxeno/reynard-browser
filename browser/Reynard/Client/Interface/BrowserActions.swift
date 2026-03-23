@@ -20,7 +20,7 @@ final class BrowserActions {
             controller?.dismiss(animated: true)
         }
         let navigationController = UINavigationController(rootViewController: viewController)
-        navigationController.modalPresentationStyle = .pageSheet
+        navigationController.modalPresentationStyle = PlatformCompatStyle.modalPresentation
         controller.present(navigationController, animated: true)
     }
     
@@ -30,6 +30,9 @@ final class BrowserActions {
             return
         }
         
+    #if os(tvOS)
+        return
+    #else
         let sheet = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         if let popover = sheet.popoverPresentationController {
             let sourceView = controller.usesCompactPadChromeMode ? controller.browserUI.toolbarView : (controller.usesPadChromeLayout ? controller.browserUI.topBar.barView : controller.browserUI.toolbarView)
@@ -37,6 +40,7 @@ final class BrowserActions {
             popover.sourceRect = sourceView.bounds
         }
         controller.present(sheet, animated: true)
+    #endif
     }
     
     func showTabOverview() {

@@ -13,12 +13,12 @@ final class LibrarySidebarViewController: UIViewController, UICollectionViewDele
     private lazy var sidebarButton = makeLibrarySidebarButton(target: self, action: #selector(collapseSidebarFromRoot))
     
     private lazy var collectionView: UICollectionView = {
-        var configuration = UICollectionLayoutListConfiguration(appearance: .sidebar)
-        configuration.backgroundColor = .systemGroupedBackground
+        var configuration = UICollectionLayoutListConfiguration(appearance: PlatformCompatStyle.listSidebarAppearance)
+        configuration.backgroundColor = PlatformCompatColor.groupedBackground
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemGroupedBackground
+        view.backgroundColor = PlatformCompatColor.groupedBackground
         view.delegate = self
         return view
     }()
@@ -33,7 +33,7 @@ final class LibrarySidebarViewController: UIViewController, UICollectionViewDele
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemGroupedBackground
+        view.backgroundColor = PlatformCompatColor.groupedBackground
         configureCollectionView()
         configureDataSource()
         applySnapshot()
@@ -137,7 +137,7 @@ private final class LibrarySidebarHostedSectionViewController: UIViewController 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = PlatformCompatColor.gray6
         
         hostedView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(hostedView)
@@ -186,7 +186,9 @@ private final class LibrarySidebarDetailViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
+#if !os(tvOS)
         navigationItem.leftItemsSupplementBackButton = false
+#endif
         navigationItem.leftBarButtonItem = nil
         SidebarToggleButtonConfiguration.configure(sidebarButton, in: splitViewController)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: sidebarButton)

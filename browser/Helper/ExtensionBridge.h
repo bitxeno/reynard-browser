@@ -9,7 +9,15 @@
 #define ExtensionBridge_h
 
 #import <Foundation/Foundation.h>
+#import <TargetConditionals.h>
+
+#if defined(TARGET_OS_TV) && TARGET_OS_TV
+typedef NSObject *xpc_connection_t;
+#else
 #import <xpc/xpc.h>
+#endif
+
+@class NSXPCConnection;
 
 #ifdef __cplusplus
 extern "C" {

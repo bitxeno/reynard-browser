@@ -72,18 +72,23 @@ class SettingsTableViewController: UITableViewController {
     }
 }
 
-final class SettingsRootViewController: SettingsTableViewController, UIDocumentPickerDelegate {
+final class SettingsRootViewController: SettingsTableViewController {
     private enum Section: Int, CaseIterable {
         case jit
         case search
         case compatibility
     }
     
+    #if os(tvOS)
+    private var jitEnabled = false
+    private var androidUserAgentEnabled = false
+    #else
     private let jitSwitch = UISwitch()
     private let androidUserAgentSwitch = UISwitch()
+    #endif
     
     init() {
-        super.init(style: .insetGrouped)
+        super.init(style: PlatformCompatStyle.tableInsetGrouped)
         title = "Settings"
     }
     
@@ -93,9 +98,11 @@ final class SettingsRootViewController: SettingsTableViewController, UIDocumentP
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
+        #if !os(tvOS)
         jitSwitch.addTarget(self, action: #selector(jitSwitchChanged), for: .valueChanged)
         androidUserAgentSwitch.addTarget(self, action: #selector(androidUserAgentSwitchChanged), for: .valueChanged)
+        #endif
         refreshControls()
     }
     
@@ -131,8 +138,12 @@ final class SettingsRootViewController: SettingsTableViewController, UIDocumentP
         case .jit where indexPath.row == 0:
             let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
             cell.textLabel?.text = "Enable JIT"
+            #if os(tvOS)
+            cell.accessoryType = jitEnabled ? .checkmark : .none
+            #else
             cell.selectionStyle = .none
             cell.accessoryView = jitSwitch
+            #endif
             return cell
             
         case .jit:
@@ -152,8 +163,12 @@ final class SettingsRootViewController: SettingsTableViewController, UIDocumentP
         case .compatibility:
             let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
             cell.textLabel?.text = "Use Android User Agent"
+            #if os(tvOS)
+            cell.accessoryType = androidUserAgentEnabled ? .checkmark : .none
+            #else
             cell.selectionStyle = .none
             cell.accessoryView = androidUserAgentSwitch
+            #endif
             return cell
         }
     }
@@ -168,8 +183,23 @@ final class SettingsRootViewController: SettingsTableViewController, UIDocumentP
         }
         
         switch section {
+        #if os(tvOS)
+        case .jit where indexPath.row == 0:
+            preferences.isJITEnabled.toggle()
+            refreshControls()
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+
+        case .compatibility where indexPath.row == 0:
+            preferences.useAndroidUserAgent.toggle()
+            refreshControls()
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+
+        case .jit where indexPath.row == 1:
+            presentAlert(title: "Unavailable", message: "Pairing file import is not supported on tvOS.")
+        #else
         case .jit where indexPath.row == 1:
             presentPairingFilePicker()
+        #endif
             
         case .search:
             navigationController?.pushViewController(SearchEngineSettingsViewController(), animated: true)
@@ -209,6 +239,7 @@ final class SettingsRootViewController: SettingsTableViewController, UIDocumentP
         }
     }
     
+    #if !os(tvOS)
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         guard let url = urls.first else {
             return
@@ -224,33 +255,45 @@ final class SettingsRootViewController: SettingsTableViewController, UIDocumentP
     }
     
     func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {}
+    #endif
     
     private func refreshControls() {
+        #if os(tvOS)
+        jitEnabled = preferences.isJITEnabled
+        androidUserAgentEnabled = preferences.useAndroidUserAgent
+        #else
         jitSwitch.isEnabled = preferences.hasPairingFile
         jitSwitch.isOn = preferences.isJITEnabled
         androidUserAgentSwitch.isOn = preferences.useAndroidUserAgent
+        #endif
     }
     
     private func presentPairingFilePicker() {
+        #if !os(tvOS)
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: allowedPairingFileTypes(), asCopy: false)
         picker.delegate = self
         picker.allowsMultipleSelection = false
         present(picker, animated: true)
+        #endif
     }
     
     @objc private func jitSwitchChanged() {
+        #if !os(tvOS)
         preferences.isJITEnabled = jitSwitch.isOn
         jitSwitch.isOn = preferences.isJITEnabled
+        #endif
     }
     
     @objc private func androidUserAgentSwitchChanged() {
+        #if !os(tvOS)
         preferences.useAndroidUserAgent = androidUserAgentSwitch.isOn
+        #endif
     }
 }
 
 private final class SearchEngineSettingsViewController: SettingsTableViewController, UITextFieldDelegate {
     init() {
-        super.init(style: .insetGrouped)
+        super.init(style: PlatformCompatStyle.tableInsetGrouped)
         title = "Search Engine"
     }
     

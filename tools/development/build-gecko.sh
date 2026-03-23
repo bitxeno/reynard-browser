@@ -6,19 +6,38 @@ SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 ROOT_DIR="$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)"
 FIREFOX_DIR="$ROOT_DIR/engine/firefox"
 
-# Build target: default to simulator, pass "device" as first arg for device build
+# Build target: default to simulator, pass "device" for iOS device,
+# "tvos" for Apple TV device, or "tvos-simulator" for Apple TV simulator.
 BUILD_FOR="${1:-simulator}"
 
-if [ "$BUILD_FOR" = "device" ]; then
-	TARGET="aarch64-apple-ios"
-else
-	HOST_ARCH="$(uname -m)"
-	if [ "$HOST_ARCH" = "arm64" ]; then
-		TARGET="aarch64-apple-ios-sim"
-	else
-		TARGET="x86_64-apple-ios"
-	fi
-fi
+case "$BUILD_FOR" in
+	device)
+		TARGET="aarch64-apple-ios"
+		;;
+	simulator)
+		HOST_ARCH="$(uname -m)"
+		if [ "$HOST_ARCH" = "arm64" ]; then
+			TARGET="aarch64-apple-ios-sim"
+		else
+			TARGET="x86_64-apple-ios"
+		fi
+		;;
+	tvos)
+		TARGET="aarch64-apple-tvos"
+		;;
+	tvos-simulator|tvos_simulator|tvos-sim)
+		HOST_ARCH="$(uname -m)"
+		if [ "$HOST_ARCH" != "arm64" ]; then
+			echo "tvOS simulator builds require Apple Silicon on this setup." >&2
+			exit 1
+		fi
+		TARGET="aarch64-apple-tvos-sim"
+		;;
+	*)
+		echo "Usage: $0 [device|simulator|tvos|tvos-simulator]" >&2
+		exit 1
+		;;
+esac
 
 cd "$ROOT_DIR"
 

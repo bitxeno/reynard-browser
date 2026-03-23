@@ -28,13 +28,17 @@ final class AddressBarGestures: NSObject {
     
     func configureGestures() {
         let phonePan = UIPanGestureRecognizer(target: self, action: #selector(handleSearchPan(_:)))
+#if !os(tvOS)
         phonePan.maximumNumberOfTouches = 1
+#endif
         phonePan.cancelsTouchesInView = false
         phonePan.delegate = self
         
         let phoneSwipeUp = UISwipeGestureRecognizer(target: self, action: #selector(handleSearchSwipeUp(_:)))
         phoneSwipeUp.direction = .up
+    #if !os(tvOS)
         phoneSwipeUp.numberOfTouchesRequired = 1
+    #endif
         phoneSwipeUp.cancelsTouchesInView = false
         phoneSwipeUp.delegate = self
         
@@ -130,7 +134,7 @@ final class AddressBarGestures: NSObject {
     
     private func createAddressBarPreview(for tab: Tab) -> UIView {
         let container = UIView()
-        container.backgroundColor = .secondarySystemBackground
+        container.backgroundColor = PlatformCompatColor.secondaryBackground
         container.layer.cornerRadius = 16
         container.layer.cornerCurve = .continuous
         container.layer.shadowColor = UIColor.black.cgColor
@@ -169,7 +173,7 @@ final class AddressBarGestures: NSObject {
     
     private func createContentPreview(for tab: Tab) -> UIView {
         let preview = UIView()
-        preview.backgroundColor = .systemBackground
+        preview.backgroundColor = PlatformCompatColor.systemBackground
         
         if let image = tab.thumbnail {
             let imageView = UIImageView(image: image)

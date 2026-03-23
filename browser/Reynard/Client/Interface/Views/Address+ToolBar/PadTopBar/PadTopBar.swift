@@ -11,14 +11,14 @@ final class PadTopBar {
     let barView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = PlatformCompatColor.gray6
         return view
     }()
     
     let safeAreaFillView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = PlatformCompatColor.gray6
         return view
     }()
     

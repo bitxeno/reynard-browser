@@ -14,7 +14,7 @@ final class KeyboardDismissButton {
         button.alpha = 0
         button.isHidden = true
         button.backgroundColor = UIColor { traitCollection in
-            traitCollection.userInterfaceStyle == .dark ? .tertiarySystemBackground : .systemBackground
+            traitCollection.userInterfaceStyle == .dark ? PlatformCompatColor.tertiaryBackground : PlatformCompatColor.systemBackground
         }
         button.tintColor = .label
         button.layer.cornerCurve = .continuous

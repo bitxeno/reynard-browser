@@ -41,6 +41,13 @@ final class TabOverviewBarButtons {
         return stack
     }()
     
+    #if os(tvOS)
+    lazy var actionToolbar: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    #else
     lazy var actionToolbar: UIToolbar = {
         let toolbar = UIToolbar()
         toolbar.translatesAutoresizingMaskIntoConstraints = false
@@ -53,6 +60,7 @@ final class TabOverviewBarButtons {
         ]
         return toolbar
     }()
+    #endif
     
     private var leadingConstraint: NSLayoutConstraint?
     private var trailingConstraint: NSLayoutConstraint?
@@ -74,7 +82,11 @@ final class TabOverviewBarButtons {
     }
     
     func attach(to hostView: UIView) {
+        #if os(tvOS)
+        let controlsView = actionStack
+        #else
         let controlsView = MakeButtons.hasLiquidGlass ? actionToolbar : actionStack
+        #endif
         
         guard controlsView.superview !== hostView else {
             return

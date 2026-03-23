@@ -73,7 +73,7 @@ enum LibraryTabBarStyle {
     static func apply(to tabBar: UITabBar) {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .systemBackground
+        appearance.backgroundColor = PlatformCompatColor.systemBackground
         
         let titleAttributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: LibraryBarMetrics.titleFontSize, weight: .regular),

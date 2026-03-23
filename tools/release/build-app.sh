@@ -19,6 +19,16 @@ TODAY=$(date +%Y%b%d | tr '[:lower:]' '[:upper:]')
 cp "$XCCONFIG_PATH" "$DIST_DIR/Reynard.xcconfig"
 sed -i '' "s/CURRENT_BUILD = .*/CURRENT_BUILD = $TODAY/" "$DIST_DIR/Reynard.xcconfig"
 
-xcodebuild clean -scheme "Reynard" -project "$PROJECT_PATH" -sdk iphoneos -arch arm64 -configuration Release
+xcodebuild clean -scheme "Reynard" -project "$PROJECT_PATH" -sdk appletvos -arch arm64 -configuration Release \
+	CODE_SIGNING_ALLOWED=NO \
+	CODE_SIGNING_REQUIRED=NO \
+	CODE_SIGN_ENTITLEMENTS="" \
+	CODE_SIGNING_IDENTITY="" \
+	AD_HOC_CODE_SIGNING_ALLOWED=YES
 
-xcodebuild archive -scheme "Reynard" -archivePath "$DIST_DIR/Reynard.xcarchive" -project "$PROJECT_PATH" -sdk iphoneos -arch arm64 -configuration Release -xcconfig "$DIST_DIR/Reynard.xcconfig" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_REQUIRED=NO
+xcodebuild archive -scheme "Reynard" -archivePath "$DIST_DIR/Reynard.xcarchive" -project "$PROJECT_PATH" -sdk appletvos -arch arm64 -configuration Release -xcconfig "$DIST_DIR/Reynard.xcconfig" \
+	CODE_SIGNING_ALLOWED=NO \
+	CODE_SIGNING_REQUIRED=NO \
+	CODE_SIGN_ENTITLEMENTS="" \
+	CODE_SIGNING_IDENTITY="" \
+	AD_HOC_CODE_SIGNING_ALLOWED=YES

@@ -213,6 +213,7 @@ final class BrowserLayout {
     }
     
     func observeKeyboard() {
+#if !os(tvOS)
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(keyboardWillChangeFrame(_:)),
@@ -225,6 +226,7 @@ final class BrowserLayout {
             name: UIResponder.keyboardWillHideNotification,
             object: nil
         )
+#endif
     }
     
     func applyChromeLayout(animated: Bool) {
@@ -291,8 +293,8 @@ final class BrowserLayout {
         ui.chromeContainer.containerView.isHidden = (!showsCompactPadBottomToolbar && pad) || controller.tabOverviewPresentation.isVisible
         ui.chromeContainer.bottomSafeAreaFillView.isHidden = (!showsCompactPadBottomToolbar && pad) || controller.tabOverviewPresentation.isVisible
         ui.phoneChromeHeightConstraint.constant = compactPad ? 44 : (controller.isSearchFocused ? 58 : 94)
-        ui.chromeContainer.containerView.backgroundColor = controller.isSearchFocused && !pad ? .clear : .systemGray6
-        ui.chromeContainer.bottomSafeAreaFillView.backgroundColor = controller.isSearchFocused && !pad ? .clear : .systemGray6
+        ui.chromeContainer.containerView.backgroundColor = controller.isSearchFocused && !pad ? .clear : PlatformCompatColor.gray6
+        ui.chromeContainer.bottomSafeAreaFillView.backgroundColor = controller.isSearchFocused && !pad ? .clear : PlatformCompatColor.gray6
         ui.toolbarView.alpha = compactPad ? 1 : ui.toolbarView.alpha
         
         ui.tabOverviewTopBar.barView.isHidden = !pad
@@ -335,10 +337,12 @@ final class BrowserLayout {
             return controller.view.safeAreaInsets.top
         }
         
+    #if !os(tvOS)
         if let statusBarHeight = controller.view.window?.windowScene?.statusBarManager?.statusBarFrame.height,
            statusBarHeight > 0 {
             return statusBarHeight
         }
+    #endif
         
         return 24
     }
@@ -364,8 +368,8 @@ final class BrowserLayout {
         }
         ui.phoneToolbarHeightConstraint.constant = focused ? 0 : 30
         ui.phoneChromeHeightConstraint.constant = focused ? 58 : 94
-        ui.chromeContainer.containerView.backgroundColor = focused ? .clear : .systemGray6
-        ui.chromeContainer.bottomSafeAreaFillView.backgroundColor = focused ? .clear : .systemGray6
+        ui.chromeContainer.containerView.backgroundColor = focused ? .clear : PlatformCompatColor.gray6
+        ui.chromeContainer.bottomSafeAreaFillView.backgroundColor = focused ? .clear : PlatformCompatColor.gray6
         updateChromeLayoutState()
         
         ui.addressBarPhoneTrailingFullConstraint.isActive = !focused
@@ -398,6 +402,9 @@ final class BrowserLayout {
     }
     
     @objc private func keyboardWillChangeFrame(_ notification: Notification) {
+#if os(tvOS)
+        return
+#else
         guard !controller.usesPadChromeLayout,
               let info = notification.userInfo,
               let frameValue = info[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
@@ -424,9 +431,13 @@ final class BrowserLayout {
             self.controller.view.layoutIfNeeded()
             self.updatePhoneDismissKeyboardButtonShadowPath()
         }
+#endif
     }
     
     @objc private func keyboardWillHide(_ notification: Notification) {
+#if os(tvOS)
+        return
+#else
         guard !controller.usesPadChromeLayout else {
             return
         }
@@ -446,6 +457,7 @@ final class BrowserLayout {
             self.controller.view.layoutIfNeeded()
             self.updatePhoneDismissKeyboardButtonShadowPath()
         }
+#endif
     }
     
     private func updatePhoneDismissKeyboardButtonShadowPath() {

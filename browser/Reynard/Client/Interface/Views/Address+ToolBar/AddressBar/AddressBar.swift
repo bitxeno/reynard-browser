@@ -21,7 +21,7 @@ final class AddressBar: UIView {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = UIColor { traitCollection in
-            traitCollection.userInterfaceStyle == .dark ? .tertiarySystemBackground : .systemBackground
+            traitCollection.userInterfaceStyle == .dark ? PlatformCompatColor.tertiaryBackground : PlatformCompatColor.systemBackground
         }
         view.layer.cornerCurve = .continuous
         view.layer.cornerRadius = 16

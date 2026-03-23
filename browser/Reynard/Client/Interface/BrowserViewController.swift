@@ -50,9 +50,11 @@ final class BrowserViewController: UIViewController, AddressBarDelegate, PhoneTo
         }
         
         // Also use the pad layout in iPhone landscape mode
+#if !os(tvOS)
         if let orientation = view.window?.windowScene?.interfaceOrientation {
             return orientation.isLandscape
         }
+#endif
         
         return view.bounds.width > view.bounds.height
     }
@@ -77,7 +79,7 @@ final class BrowserViewController: UIViewController, AddressBarDelegate, PhoneTo
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = PlatformCompatColor.systemBackground
         
         if usesEmbeddedSplitRoot {
             configureEmbeddedSplitRoot()
@@ -220,8 +222,10 @@ final class BrowserViewController: UIViewController, AddressBarDelegate, PhoneTo
     
     private func syncBrowserNavigationChrome(animated: Bool) {
         navigationController?.setNavigationBarHidden(true, animated: animated)
+#if !os(tvOS)
         navigationItem.leftItemsSupplementBackButton = false
         navigationItem.hidesBackButton = true
+#endif
         navigationItem.leftBarButtonItems = []
         navigationItem.leftBarButtonItem = nil
     }

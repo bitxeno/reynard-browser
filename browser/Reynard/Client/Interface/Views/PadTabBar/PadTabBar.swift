@@ -19,7 +19,7 @@ final class PadTabBar {
         
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = PlatformCompatColor.gray6
         view.showsHorizontalScrollIndicator = false
         view.contentInset = .zero
         view.contentInsetAdjustmentBehavior = .never

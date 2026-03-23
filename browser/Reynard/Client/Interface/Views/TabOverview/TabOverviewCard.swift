@@ -15,7 +15,7 @@ final class TabOverviewCard: UICollectionViewCell {
     private let previewShadowView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = PlatformCompatColor.systemBackground
         view.layer.cornerRadius = 18
         view.layer.cornerCurve = .continuous
         view.layer.shadowColor = UITraitCollection.current.userInterfaceStyle == .dark ? UIColor.white.cgColor : UIColor.black.cgColor
@@ -36,7 +36,7 @@ final class TabOverviewCard: UICollectionViewCell {
     private let previewContainerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = PlatformCompatColor.systemBackground
         view.layer.cornerRadius = 18
         view.layer.cornerCurve = .continuous
         view.layer.masksToBounds = true

@@ -21,12 +21,13 @@ final class LibraryViewController: UITabBarController, UITabBarControllerDelegat
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemGroupedBackground
+        view.backgroundColor = PlatformCompatColor.groupedBackground
         delegate = self
         setViewControllers(makeSectionViewControllers(), animated: false)
         selectedIndex = LibrarySection.bookmarks.rawValue
         LibraryTabBarStyle.apply(to: tabBar)
         if onClose != nil {
+            #if !os(tvOS)
             if #available(iOS 26.0, *) {
                 navigationItem.rightBarButtonItem = UIBarButtonItem(
                     barButtonSystemItem: .close,
@@ -41,13 +42,22 @@ final class LibraryViewController: UITabBarController, UITabBarControllerDelegat
                     action: #selector(dismissLibraryMenu)
                 )
             }
+            #else
+            navigationItem.rightBarButtonItem = UIBarButtonItem(
+                barButtonSystemItem: .done,
+                target: self,
+                action: #selector(dismissLibraryMenu)
+            )
+            #endif
         }
         updateNavigationTitle()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+#if !os(tvOS)
         navigationItem.leftItemsSupplementBackButton = false
+#endif
         navigationItem.leftBarButtonItems = []
         navigationItem.leftBarButtonItem = nil
     }
@@ -99,7 +109,7 @@ private final class LibraryHostedSectionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = PlatformCompatColor.gray6
         
         hostedView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(hostedView)
